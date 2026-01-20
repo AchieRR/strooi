@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 use HttpSoft\Emitter\SapiEmitter;
+use League\Route\Router;
 
 ini_set("display_errors", 1);
 
@@ -13,21 +14,45 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 $request = ServerRequest::fromGlobals();
 
-$page = $request->getQueryParams()["page"];
+$router = new Router;
 
+$router->map('GET', '/', function () {
 ob_start();
 
-require dirname(__DIR__) . "/{$page}.php";
-
-$content = ob_get_clean();
-
-$stream  = Utils::streamFor($content);
+$stream = Utils::streamFor("Homepage");
 
 $response = new Response;
 
-$response = $response->withStatus(418)
-->withHeader("X-Powered-By", "PHP")
-->withBody($stream);
+$response = $response->withBody($stream);
+
+return $response;
+});
+
+$router->get('/products', function () {
+ 
+$steam = Utils::streamFor("List of Products");
+
+$response = new Response;
+
+$response = $response->withBody($steam);
+
+return $response;
+});
+
+$router->get("/product/{id:number}", function ($request, $args) {
+
+$id = $args['id'];
+
+$stream = Utils::streamFor("Single Details with ID $id");
+
+$response = new Response;
+
+$response = $response->withBody($stream);
+
+return $response;
+});
+
+$response = $router->dispatch($request);
 
 $emitter = new SapiEmitter;
 
