@@ -4,22 +4,22 @@ Declare(strict_types=1);
 
 namespace App\Controllers;
 
-use GuzzleHttp\Psr7\Utils;
-use GuzzleHttp\Psr7\Response as GuzzelResponse;
-use Nyholm\Psr7\Response as NyholmResponse;
 use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Psr7\HttpFactory;
+use Nyholm\Psr7\Factory\Psr17Factory;
 
 class HomeController
 {
     public function index() : ResponseInterface
     {
-        
+        // $factory = new HttpFactory();  
+        $factory = new Psr17Factory();
 
-$stream = Utils::streamFor("Homepage");
+        $stream = $factory->createStream("Homepage");
 
-$response = new GuzzelResponse;
+        $response = $factory->createResponse(200);
 
-$response = $response->withBody($stream);
+        $response = $response->withBody($stream);
 
 return $response;
     }
