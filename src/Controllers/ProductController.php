@@ -4,20 +4,23 @@ Declare(strict_types=1);
 
 namespace App\Controllers;
 
-use GuzzleHttp\Psr7\Utils;
-use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 
 class ProductController
 {
-    public function index() :   Responseinterface
+    public function __construct(private ResponseFactoryInterface $factory)
+    {
+    }
+    
+    public function index() :   ResponseInterface
     {
         
 
-$stream = Utils::streamFor("List of Products");
+$stream = $this->factory->createStream("List of Products");
 
-$response = new Response;
+$response = $this->factory->createResponse();
 
 $response = $response->withBody($stream);
 
@@ -28,9 +31,9 @@ return $response;
 
 $id = $args['id'];
 
-$stream = Utils::streamFor("Single Details with ID $id");
+$stream = $this->factory->createStream("Single Details with ID $id");
 
-$response = new Response;
+$response = $this->factory->createResponse();
 
 $response = $response->withBody($stream);
 
