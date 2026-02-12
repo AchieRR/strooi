@@ -1,42 +1,24 @@
-<?php 
+<?php
+namespace Controller;
 
-Declare(strict_types=1);
-
-namespace App\Controllers;
-
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
+use Framework\Template\RendererInterface;
 
 class ProductController
 {
-    public function __construct(private ResponseFactoryInterface $factory)
+    private RendererInterface $renderer;
+
+    public function __construct(RendererInterface $renderer)
     {
-    }
-    
-    public function index() :   ResponseInterface
-    {
-        
-
-$stream = $this->factory->createStream("List of Products");
-
-$response = $this->factory->createResponse();
-
-$response = $response->withBody($stream);
-
-return $response;
+        $this->renderer = $renderer;
     }
 
- public function show(ServerRequestInterface $request, array $args) : ResponseInterface{
+    public function index()
+    {
+        return $this->renderer->render('product/index');
+    }
 
-$id = $args['id'];
-
-$stream = $this->factory->createStream("Single Details with ID $id");
-
-$response = $this->factory->createResponse();
-
-$response = $response->withBody($stream);
-
-return $response;
-}
+    public function show(int $id)
+    {
+        return $this->renderer->render('product/show', ['id' => $id]);
+    }
 }
