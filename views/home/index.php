@@ -1,5 +1,5 @@
-<?php $this->layout('layout', ['title' => 'Homepage']); ?>
+<?php $this->layout("layout", ["title" => "Homepage"]) ?>
 
-<h1>Welcome to the homepage</h1>
+<h1>Welcome</h1>
 
-<p><?= $this->e($name); ?></p>
+<p>Hello <?= $this->e($name) ?></p>

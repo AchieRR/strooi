@@ -1,4 +1,7 @@
-<?php $this->layout('layout', ['title' => 'Product Details']); ?>
+<?php $this->layout("layout", ["title" => "Product"]) ?>
 
-<h1>Product</h1>
-<p>Product ID: <?= $id; ?></p>
+<h1><?= $this->e($product->getName()) ?></h1>
+
+<p><?= $this->e($product->getDescription()) ?></p>
+
+<p><?= $product->getSize() ?></p>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title><?= $this->e($title); ?></title>
+    <title><?= $this->e($title) ?></title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
 </head>
 <body>
 
-<?php echo $this->section('content'); ?>
+<?= $this->section("content") ?>
 
 </body>
 </html>

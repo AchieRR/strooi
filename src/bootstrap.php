@@ -2,39 +2,64 @@
 
 declare(strict_types=1);
 
-use GuzzleHttp\Psr7\ServerRequest; 
-use HttpSoft\Emitter\SapiEmitter;
+use Dotenv\Dotenv;
 use League\Route\Router;
-use App\Controllers\HomeController;
-use App\Controllers\ProductController;
-use Nyholm\Psr7\Factory\Psr17Factory;
-use Psr\Http\Message\ResponseFactoryInterface;
-use GuzzleHttp\Psr7\HttpFactory;
+use HttpSoft\Emitter\SapiEmitter;
+use GuzzleHttp\Psr7\ServerRequest;
 use League\Route\Strategy\ApplicationStrategy;
+use League\Route\Http\Exception\NotFoundException;
 
-ini_set("display_errors", 1);
+define("APP_ROOT", dirname(__DIR__));
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require APP_ROOT . "/vendor/autoload.php";
+
+$dotenv = Dotenv::createImmutable(APP_ROOT);
+$dotenv->load();
+
+$env = $_ENV["APP_ENV"] ?? "prod";
+
+require $env === "dev"
+    ? APP_ROOT . "/config/errors_dev.php"
+    : APP_ROOT . "/config/errors_prod.php";
 
 $request = ServerRequest::fromGlobals();
 
-$contrainer = new DI\Container([
-    ResponseFactoryInterface::class => \DI\create(HttpFactory::class)
-]);
+$builder = new DI\ContainerBuilder;
+
+$builder->addDefinitions(APP_ROOT . "/config/definitions.php");
+
+$builder->useAttributes(true);
+
+$container = $builder->build();
 
 $router = new Router;
 
 $strategy = new ApplicationStrategy;
-$strategy->setContainer($contrainer);
+$strategy->setContainer($container);
 $router->setStrategy($strategy);
 
-$router->get('/', [HomeController::class, 'index']);
+$routes = require APP_ROOT . "/config/routes.php";
+$routes($router);
 
-$router->get('/products', [ProductController::class, 'index']);
+try {
 
-$router->get("/product/{id:number}", [ProductController::class, 'show']);
+    $response = $router->dispatch($request);
 
-$response = $router->dispatch($request);
+} catch (NotFoundException $e) {
+    
+    http_response_code(404);
+
+    if ($env === "dev") {
+
+        throw $e;
+
+    } else {
+
+        require APP_ROOT . "/views/404.html";
+        exit;
+
+    }
+}
 
 $emitter = new SapiEmitter;
 

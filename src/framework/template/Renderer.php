@@ -1,17 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Framework\Template;
 
 class Renderer implements RendererInterface
 {
     public function render(string $template, array $data = []): string
     {
-        $viewPath = __DIR__ . '/../../../views/' . $template . '.php';
-
         extract($data, EXTR_SKIP);
 
         ob_start();
 
-        require $viewPath;
+        require dirname(__DIR__, 3) . "/views/$template.php";
 
         return ob_get_clean();
     }

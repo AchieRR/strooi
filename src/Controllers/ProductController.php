@@ -1,24 +1,60 @@
 <?php
-namespace Controller;
 
-use Framework\Template\RendererInterface;
+declare(strict_types=1);
 
-class ProductController
+namespace App\Controllers;
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Framework\Controller\AbstractController;
+use App\Entities\Product;
+use Doctrine\ORM\EntityManagerInterface;
+
+class ProductController extends AbstractController
 {
-    private RendererInterface $renderer;
-
-    public function __construct(RendererInterface $renderer)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->renderer = $renderer;
     }
 
-    public function index()
+    public function index(): ResponseInterface
     {
-        return $this->renderer->render('product/index');
+        $repo = $this->em->getRepository(Product::class);
+
+        $products = $repo->findAll();
+
+        return $this->render("product/index", [
+            "products" => $products
+        ]);
     }
 
-    public function show(int $id)
+    public function show(ServerRequestInterface $request, array $args): ResponseInterface
     {
-        return $this->renderer->render('product/show', ['id' => $id]);
+        $product = $this->em->find(Product::class, $args["id"]);
+
+        return $this->render("product/show", [
+            "product" => $product
+        ]);
+    }
+
+    public function create(ServerRequestInterface $request): ResponseInterface
+    {
+        if ($request->getMethod() === "POST") {
+
+            $parameters = $request->getParsedBody();
+
+            $product = new Product;
+
+            $product->setName($parameters["name"]);
+            $product->setDescription($parameters["description"]);
+            $product->setSize((int) $parameters["size"]);
+
+            $this->em->persist($product);
+
+            $this->em->flush();
+
+            return $this->redirect("/product/{$product->getId()}");
+        }
+
+        return $this->render("product/new");
     }
 }

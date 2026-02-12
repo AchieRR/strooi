@@ -1,21 +1,22 @@
 <?php
-namespace Controller;
 
-use Framework\Template\RendererInterface;
+declare(strict_types=1);
 
-class HomeController
+namespace App\Controllers;
+
+use Psr\Http\Message\ResponseInterface;
+use Framework\Controller\AbstractController;
+
+class HomeController extends AbstractController
 {
-    private RendererInterface $renderer;
-
-    public function __construct(RendererInterface $renderer)
+    public function __construct(private \DateTime $dt)
     {
-        $this->renderer = $renderer;
     }
 
-    public function index()
+    public function index(): ResponseInterface
     {
-        $name = '<b>John Doe</b>';
-
-        return $this->renderer->render('home/index', ['name' => $name]);
+        return $this->render("home/index", [
+            "name" => $this->dt->format("l")
+        ]);
     }
 }
